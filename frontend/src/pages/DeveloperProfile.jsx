@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { generateReport, getAnalytics, getDeveloper, getRepositories } from '../services/api';
+import { generateReport, getAnalytics, getDeveloper, getRepositories, saveDeveloper } from '../services/api';
 import { formatDate, formatNumber } from '../utils/formatters';
 
 // Components
 import ErrorMessage from '../components/ErrorMessage';
-import LoadingSpinner from '../components/LoadingSpinner';
+import PageLoader from '../components/common/PageLoader';
+import EmptyState from '../components/common/EmptyState';
 import InsightCard from '../components/analytics/InsightCard';
 import LanguageChart from '../components/analytics/LanguageChart';
 import ScoreBreakdown from '../components/analytics/ScoreBreakdown';
 import ScoreCard from '../components/analytics/ScoreCard';
 import RepositoryCard from '../components/repositories/RepositoryCard';
 import RepositoryTable from '../components/repositories/RepositoryTable';
+import Toast from '../components/common/Toast';
 
 // ─── Stat chip ────────────────────────────────────────────────────────────────
 const StatChip = ({ icon, value, label }) => (
@@ -57,6 +59,23 @@ const DeveloperProfile = () => {
   const [showAllRepos, setShowAllRepos] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportMsg, setReportMsg] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
+  const [toastType, setToastType] = useState('success');
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await saveDeveloper(username);
+      setToastType('success');
+      setToastMsg(`@${username} saved to your collection!`);
+    } catch (err) {
+      setToastType('error');
+      setToastMsg(err.message || 'Failed to save developer.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -116,33 +135,50 @@ const DeveloperProfile = () => {
   useEffect(() => { load(); }, [username]);
 
   const handleGenerateReport = async () => {
-    setReportLoading(true);
-    setReportMsg('');
-    try {
-      const res = await generateReport(username);
-      const reportId = res?.data?.report_id || res?.report_id;
-      if (reportId) {
-        setReportMsg(`Report #${reportId} ready — `);
-        window.open(`http://localhost:8000/api/reports/${reportId}`, '_blank');
-      }
-    } catch (err) {
-      setReportMsg(`Report error: ${err.message}`);
-    } finally {
-      setReportLoading(false);
+  setReportLoading(true);
+  setReportMsg('');
+
+  try {
+
+    const res = await generateReport(username);
+
+
+    const reportId =
+      res?.data?.report_id ||
+      res?.report_id;
+
+
+    if (reportId) {
+
+      setReportMsg(
+        `Report #${reportId} ready — `
+      );
+
+
+      window.open(
+        `${import.meta.env.VITE_API_URL}/reports/${reportId}`,
+        '_blank'
+      );
+
     }
-  };
+
+
+  } catch (err) {
+
+    setReportMsg(
+      `Report error: ${err.message}`
+    );
+
+  } finally {
+
+    setReportLoading(false);
+
+  }
+};
 
   // ── Loading ──
   if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
-        <LoadingSpinner size="lg" />
-        <div className="text-center space-y-1">
-          <p className="font-semibold text-zinc-700 dark:text-zinc-300">Analyzing developer…</p>
-          <p className="text-sm text-zinc-400">Fetching profile &amp; computing analytics</p>
-        </div>
-      </div>
-    );
+    return <PageLoader text="Analyzing developer…" />;
   }
 
   // ── Error ──
@@ -234,6 +270,20 @@ const DeveloperProfile = () => {
                   </svg>
                   GitHub Profile
                 </a>
+
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="btn-secondary text-sm"
+                  title="Save Developer"
+                >
+                  {saving ? (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+                  ) : (
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                  )}
+                  Save
+                </button>
 
                 <button
                   onClick={handleGenerateReport}
@@ -373,16 +423,24 @@ const DeveloperProfile = () => {
         <div className="sm:hidden grid grid-cols-1 gap-3">
           {displayedRepos.length > 0
             ? displayedRepos.map((repo) => (
-              <RepositoryCard key={repo.name} repo={repo} username={username} />
-            ))
+                <RepositoryCard key={repo.name} repo={repo} username={username} />
+              ))
             : (
-              <div className="card flex items-center justify-center py-10 text-zinc-400 text-sm">
-                No public repositories found.
-              </div>
+              <EmptyState 
+                icon="📦"
+                title="No repositories found"
+                description="This developer has no public repositories available."
+              />
             )
           }
         </div>
       </section>
+
+      <Toast
+        message={toastMsg}
+        type={toastType}
+        onClose={() => setToastMsg('')}
+      />
     </div>
   );
 };

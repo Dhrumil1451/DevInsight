@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { compareDevelopers } from '../services/api';
 import { getLanguageColor } from '../utils/formatters';
-import LoadingSpinner  from '../components/LoadingSpinner';
+import PageLoader    from '../components/common/PageLoader';
 import ErrorMessage    from '../components/ErrorMessage';
 import CompareCard     from '../components/compare/CompareCard';
 import ScoreComparison from '../components/compare/ScoreComparison';
@@ -200,12 +200,7 @@ const Compare = () => {
       </div>
 
       {/* ── Loading ── */}
-      {loading && (
-        <div className="flex flex-col items-center justify-center gap-4 py-12">
-          <LoadingSpinner size="lg" />
-          <p className="text-sm text-zinc-400 animate-pulse">Fetching and comparing developer profiles…</p>
-        </div>
-      )}
+      {loading && <PageLoader text="Fetching and comparing developer profiles…" />}
 
       {/* ── Results ── */}
       {!loading && result && (
