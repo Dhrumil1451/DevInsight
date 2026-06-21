@@ -31,3 +31,6 @@ backend/reports/*.pdf
 # OS files
 .DS_Store
 Thumbs.db
+
+# Docker
+*.log

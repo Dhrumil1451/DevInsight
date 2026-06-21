@@ -14,7 +14,9 @@ from app.core.exception_handler import (
 )
 
 
-# 1. EXPLICIT MODEL REGISTRATION
+# =========================
+# MODEL REGISTRATION
+# =========================
 
 from app.models.developer_profile import DeveloperProfile
 from app.models.repository import Repository
@@ -24,7 +26,10 @@ from app.models.saved_profile import SavedProfile
 from app.models.report import Report
 
 
-# 2. IMPORT ROUTERS
+
+# =========================
+# ROUTERS
+# =========================
 
 from app.api import health
 from app.api import users
@@ -37,24 +42,105 @@ from app.api import trending
 from app.api import reports
 
 
-# 3. DATABASE INITIALIZATION
+
+# =========================
+# DATABASE INITIALIZATION
+# =========================
 
 Base.metadata.create_all(bind=engine)
 
 
 
+# =========================
+# SWAGGER TAGS
+# =========================
+
+tags_metadata = [
+
+    {
+        "name": "Health",
+        "description": "API health monitoring"
+    },
+
+    {
+        "name": "Users",
+        "description": "GitHub developer profile operations"
+    },
+
+    {
+        "name": "Repositories",
+        "description": "Developer repository information"
+    },
+
+    {
+        "name": "Analytics",
+        "description": "Developer intelligence and scoring"
+    },
+
+    {
+        "name": "Compare",
+        "description": "Compare two developers"
+    },
+
+    {
+        "name": "Trending",
+        "description": "Trending developers based on searches"
+    },
+
+    {
+        "name": "Saved",
+        "description": "Manage saved developers"
+    },
+
+    {
+        "name": "Reports",
+        "description": "Generate developer PDF reports"
+    }
+
+]
+
+
+
 def get_application() -> FastAPI:
 
+
     application = FastAPI(
-        title=settings.PROJECT_NAME,
-        openapi_url=f"{settings.API_V1_STR}/openapi.json",
-        
+
+        title="DevInsight API",
+
+        description="""
+        DevInsight is a GitHub developer analytics platform.
+
+        Features:
+
+        - GitHub profile analysis
+        - Repository analytics
+        - Developer scoring
+        - Language diversity analysis
+        - Developer comparison
+        - Trending developers
+        - Saved profiles
+        - PDF analytics reports
+
+        """,
+
+        version="1.0.0",
+
+        openapi_tags=tags_metadata,
+
+        contact={
+            "name": "DevInsight Developer"
+        },
+
+        openapi_url=f"{settings.API_V1_STR}/openapi.json"
     )
 
 
+
     # =========================
-    # GLOBAL ERROR HANDLERS
+    # ERROR HANDLERS
     # =========================
+
 
     application.add_exception_handler(
         RequestValidationError,
@@ -67,10 +153,12 @@ def get_application() -> FastAPI:
         database_exception_handler
     )
 
+
     application.add_exception_handler(
         HTTPException,
         http_exception_handler
     )
+
 
     application.add_exception_handler(
         Exception,
@@ -78,64 +166,82 @@ def get_application() -> FastAPI:
     )
 
 
+
     # =========================
-    # CORS CONFIGURATION
+    # CORS
     # =========================
+
 
     if settings.CORS_ORIGINS:
 
         application.add_middleware(
+
             CORSMiddleware,
+
             allow_origins=settings.CORS_ORIGINS,
+
             allow_credentials=True,
+
             allow_methods=["*"],
+
             allow_headers=["*"],
+
         )
+
 
 
     # =========================
     # ROUTERS
     # =========================
 
+
     application.include_router(
         health.router,
         prefix=settings.API_V1_STR
     )
+
 
     application.include_router(
         users.router,
         prefix=settings.API_V1_STR
     )
 
+
     application.include_router(
         analytics.router,
         prefix=settings.API_V1_STR
     )
+
 
     application.include_router(
         repositories.router,
         prefix=settings.API_V1_STR
     )
 
+
     application.include_router(
         compare.router,
         prefix=settings.API_V1_STR
     )
+
 
     application.include_router(
         history.router,
         prefix=settings.API_V1_STR
     )
 
+
     application.include_router(
         saved.router,
         prefix=settings.API_V1_STR
     )
 
+
     application.include_router(
         trending.router,
         prefix=settings.API_V1_STR
     )
+
 
     application.include_router(
         reports.router,
@@ -143,7 +249,9 @@ def get_application() -> FastAPI:
     )
 
 
+
     return application
+
 
 
 
@@ -155,5 +263,8 @@ app = get_application()
 def root():
 
     return {
-        "message": f"Welcome to the {settings.PROJECT_NAME} API. Visit /docs for the API documentation."
+
+        "message":
+        f"Welcome to the {settings.PROJECT_NAME} API. Visit /docs for the API documentation."
+
     }
