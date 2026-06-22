@@ -108,4 +108,11 @@ Once the backend is running, you can access the interactive Swagger API document
 
 ---
 
+-------------------------------------------------------------------------------------------------
+Live Demo:
+https://dev-insight-orpin.vercel.app
+
+API Docs:
+https://devinsight-p39q.onrender.com/docs
+-------------------------------------------------------------------------------------------------
 *Built with ❤️ for developers, by developers.*
