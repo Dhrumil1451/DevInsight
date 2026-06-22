@@ -57,12 +57,12 @@ function CloseIcon() {
 function Logo() {
   return (
     <Link to="/" className="flex items-center gap-2.5 group">
-      {/* Icon mark */}
-      <div className="w-8 h-8 rounded-lg bg-brand-gradient flex items-center justify-center shadow-lg shadow-brand-500/30 group-hover:shadow-brand-500/50 transition-shadow duration-300">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10"/><path d="M12 8v4l3 3"/>
-        </svg>
-      </div>
+      {/* Image mark */}
+      <img 
+        src="/devinsight-logo.png" 
+        alt="DevInsight Logo" 
+        className="w-8 h-8 rounded-lg shadow-lg shadow-brand-500/30 group-hover:shadow-brand-500/50 transition-shadow duration-300 object-contain"
+      />
       {/* Wordmark */}
       <span className="font-bold text-lg tracking-tight text-zinc-900 dark:text-white">
         Dev<span className="text-brand-500">Insight</span>
