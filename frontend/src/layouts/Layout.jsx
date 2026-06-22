@@ -21,9 +21,7 @@ const Layout = ({ children }) => {
           <p className="text-xs text-zinc-400 dark:text-zinc-500">
             © {new Date().getFullYear()} DevInsight — GitHub Analytics Platform
           </p>
-          <p className="text-xs text-zinc-400 dark:text-zinc-500">
-            Built with FastAPI &amp; React
-          </p>
+          
         </div>
       </footer>
     </div>
